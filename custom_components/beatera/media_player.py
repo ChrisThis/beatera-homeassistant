@@ -5,15 +5,21 @@ from __future__ import annotations
 from datetime import datetime, timezone
 from typing import Any
 
+import aiohttp
+
+from homeassistant.components import media_source
 from homeassistant.components.media_player import (
+    ATTR_MEDIA_ANNOUNCE,
     BrowseMedia,
     MediaPlayerEntity,
     MediaPlayerEntityFeature,
     MediaPlayerState,
     MediaType,
+    async_process_play_media_url,
 )
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.exceptions import HomeAssistantError
+from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
@@ -26,10 +32,13 @@ from .coordinator import BeateraCoordinator
 FEATURES = (
     MediaPlayerEntityFeature.PLAY | MediaPlayerEntityFeature.PAUSE | MediaPlayerEntityFeature.STOP | MediaPlayerEntityFeature.NEXT_TRACK
     | MediaPlayerEntityFeature.PREVIOUS_TRACK | MediaPlayerEntityFeature.SEEK | MediaPlayerEntityFeature.VOLUME_SET
-    | MediaPlayerEntityFeature.PLAY_MEDIA | MediaPlayerEntityFeature.BROWSE_MEDIA
+    | MediaPlayerEntityFeature.PLAY_MEDIA | MediaPlayerEntityFeature.BROWSE_MEDIA | MediaPlayerEntityFeature.MEDIA_ANNOUNCE
 )
 
 VIDEO = {"movie", "episode", "concert", "video", "live"}
+
+# What Beatera takes for one announcement.
+MAX_SOUND = 10 * 1024 * 1024
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: BeateraConfigEntry, add: AddConfigEntryEntitiesCallback) -> None:
@@ -59,9 +68,14 @@ class BeateraPlayer(CoordinatorEntity[BeateraCoordinator], MediaPlayerEntity):
         self._attr_unique_id = f"{coordinator.config_entry.entry_id}-{player}"
         self._attr_name = None
         state = coordinator.data.players[player]
+        owner = state.get("user") or {}
+        # Devices of other people in the household carry their name.
+        name = state.get("name") or "Beatera"
+        if owner and not owner.get("own", True) and owner.get("name"):
+            name = f"{owner['name']} · {name}"
         self._attr_device_info = {
             "identifiers": {(DOMAIN, player)},
-            "name": state.get("name") or "Beatera",
+            "name": name,
             "manufacturer": "Beatera",
             "model": state.get("device") or "Player",
             "via_device": (DOMAIN, coordinator.config_entry.entry_id),
@@ -130,6 +144,11 @@ class BeateraPlayer(CoordinatorEntity[BeateraCoordinator], MediaPlayerEntity):
         return datetime.fromtimestamp(reported / 1000, tz=timezone.utc) if reported else None
 
     @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        owner = (self._state or {}).get("user") or {}
+        return {"user": owner.get("name")} if owner.get("name") else {}
+
+    @property
     def volume_level(self) -> float | None:
         return (self._state or {}).get("volume")
 
@@ -166,7 +185,15 @@ class BeateraPlayer(CoordinatorEntity[BeateraCoordinator], MediaPlayerEntity):
         await self._send("volume", {"volume": round(volume, 3)})
 
     async def async_play_media(self, media_type: str, media_id: str, **kwargs: Any) -> None:
-        """beatera:<type>:<id>, as given by the media browser."""
+        """beatera:<type>:<id>, as given by the media browser; sounds and spoken text as an announcement."""
+        # Beatera's own entries under Media are played as a whole, not as a sound.
+        own = f"media-source://{DOMAIN}/"
+        if media_id.startswith(own) and not kwargs.get(ATTR_MEDIA_ANNOUNCE):
+            kind, _, key = media_id.removeprefix(own).partition("/")
+            media_id = f"beatera:{'recording' if kind == 'song' else kind}:{key}"
+        if kwargs.get(ATTR_MEDIA_ANNOUNCE) or not media_id.startswith("beatera:"):
+            await self._announce(media_id, kwargs.get(ATTR_MEDIA_ANNOUNCE, True))
+            return
         kind, item = parse(media_id)
         if kind not in PLAYABLE or not item.isdigit():
             raise HomeAssistantError(f"Beatera cannot play {media_id}")
@@ -175,6 +202,28 @@ class BeateraPlayer(CoordinatorEntity[BeateraCoordinator], MediaPlayerEntity):
         except BeateraError as err:
             raise HomeAssistantError(f"Beatera: {err}") from err
         await self.coordinator.async_request_refresh()
+
+    async def _announce(self, media_id: str, announce: bool | None) -> None:
+        """Home Assistant fetches the sound and sends it to Beatera; the browser of the player cannot always reach Home Assistant."""
+        if media_source.is_media_source_id(media_id):
+            media_id = (await media_source.async_resolve_media(self.hass, media_id, self.entity_id)).url
+        if not media_id.startswith(("http://", "https://", "/")):
+            raise HomeAssistantError(f"Beatera cannot play {media_id}")
+        url = async_process_play_media_url(self.hass, media_id)
+        try:
+            async with async_get_clientsession(self.hass).get(url, timeout=aiohttp.ClientTimeout(total=30)) as response:
+                response.raise_for_status()
+                sound = await response.content.read(MAX_SOUND + 1)
+                kind = response.headers.get("Content-Type", "audio/mpeg").split(";")[0]
+        except (aiohttp.ClientError, TimeoutError) as err:
+            raise HomeAssistantError(f"Beatera: the sound could not be fetched: {err}") from err
+        if len(sound) > MAX_SOUND:
+            raise HomeAssistantError("Beatera: the sound is longer than 10 MB")
+        name = "sound." + {"audio/wav": "wav", "audio/x-wav": "wav", "audio/ogg": "ogg", "audio/flac": "flac", "audio/mp4": "m4a", "audio/aac": "aac", "audio/webm": "webm", "audio/opus": "opus"}.get(kind, "mp3")
+        try:
+            await self.coordinator.api.announce(self._player, sound, kind, name)
+        except BeateraError as err:
+            raise HomeAssistantError(f"Beatera: {err}") from err
 
     async def async_browse_media(self, media_content_type: str | None = None, media_content_id: str | None = None) -> BrowseMedia:
         return await browse(self.coordinator.api, media_content_id)

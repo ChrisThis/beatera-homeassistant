@@ -1,0 +1,44 @@
+start_mode:
+  fields:
+    mode:
+      required: true
+      example: "Romantik"
+      selector:
+        text:
+    entity_id:
+      selector:
+        entity:
+          integration: beatera
+          domain: media_player
+          multiple: true
+    volume:
+      selector:
+        number:
+          min: 0
+          max: 100
+          unit_of_measurement: "%"
+    shuffle:
+      selector:
+        boolean:
+    fade:
+      selector:
+        number:
+          min: 0
+          max: 60
+          unit_of_measurement: s
+    when_playing:
+      selector:
+        select:
+          translation_key: when_playing
+          options:
+            - replace
+            - append
+            - keep
+pause_all:
+  fields:
+    entity_id:
+      selector:
+        entity:
+          integration: beatera
+          domain: media_player
+          multiple: true

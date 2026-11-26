@@ -3,28 +3,113 @@
     "step": {
       "user": {
         "title": "Beatera",
-        "description": "Adresse von Beatera und ein Schlüssel aus Profil → Apps und Zugänge. Rechte: Lesen und Abspielen; Verwaltung für Scans und sofortige Ereignisse.",
-        "data": {"url": "Adresse", "token": "Schlüssel"}
+        "description": "Adresse von Beatera und der Kopplungscode aus Profil → Home Assistant (oder ein Schlüssel aus Profil → Apps und Zugänge).",
+        "data": {
+          "url": "Adresse",
+          "token": "Kopplungscode oder Schlüssel"
+        }
       },
-      "reauth_confirm": {"title": "Neuer Schlüssel", "description": "Der Schlüssel wurde entzogen oder hat zu wenig Rechte. Erstelle im Profil einen neuen.", "data": {"token": "Schlüssel"}}
+      "reauth_confirm": {
+        "title": "Neuer Schlüssel",
+        "description": "Erstelle im Profil einen neuen Kopplungscode (oder Schlüssel) und gib ihn hier ein.",
+        "data": {
+          "token": "Kopplungscode oder Schlüssel"
+        }
+      }
     },
     "error": {
       "invalid_url": "Die Adresse muss mit http:// oder https:// beginnen.",
       "invalid_auth": "Beatera nimmt diesen Schlüssel nicht an.",
       "cannot_connect": "Beatera ist unter dieser Adresse nicht erreichbar.",
-      "missing_rights": "Der Schlüssel braucht mindestens die Rechte Lesen und Abspielen."
+      "missing_rights": "Der Schlüssel braucht mindestens die Rechte Lesen und Abspielen.",
+      "invalid_code": "Der Kopplungscode stimmt nicht, wurde schon benutzt oder ist älter als 10 Minuten. Erstelle im Profil einen neuen."
     },
-    "abort": {"already_configured": "Dieses Konto ist schon eingerichtet.", "reauth_successful": "Der neue Schlüssel funktioniert."}
+    "abort": {
+      "already_configured": "Dieses Konto ist schon eingerichtet.",
+      "reauth_successful": "Der neue Schlüssel funktioniert."
+    }
   },
   "entity": {
     "sensor": {
-      "playing": {"name": "Spielt gerade"},
-      "files": {"name": "Mediendateien"},
-      "version": {"name": "Version"},
-      "streams": {"name": "Aktive Umwandlungen"},
-      "work": {"name": "Arbeit im Hintergrund"}
+      "playing": {
+        "name": "Spielt gerade"
+      },
+      "files": {
+        "name": "Mediendateien"
+      },
+      "version": {
+        "name": "Version"
+      },
+      "streams": {
+        "name": "Aktive Umwandlungen"
+      },
+      "work": {
+        "name": "Arbeit im Hintergrund"
+      }
     },
-    "binary_sensor": {"scanning": {"name": "Scan läuft"}},
-    "button": {"scan": {"name": "Scan starten"}}
+    "binary_sensor": {
+      "scanning": {
+        "name": "Scan läuft"
+      }
+    },
+    "button": {
+      "scan": {
+        "name": "Scan starten"
+      },
+      "mode": {
+        "name": "Modus {name}"
+      }
+    }
+  },
+  "services": {
+    "start_mode": {
+      "name": "Modus starten",
+      "description": "Startet einen in Beatera angelegten Modus (Profil → Home Assistant). Ohne Player spielt er dort, wo der Modus es vorsieht, sonst auf dem zuletzt benutzten Gerät.",
+      "fields": {
+        "mode": {
+          "name": "Modus",
+          "description": "Name des Modus wie in Beatera."
+        },
+        "entity_id": {
+          "name": "Player",
+          "description": "Beatera-Player, auf denen er spielen soll."
+        },
+        "volume": {
+          "name": "Lautstärke",
+          "description": "Statt der Lautstärke des Modus."
+        },
+        "shuffle": {
+          "name": "Zufällig",
+          "description": "Statt der Einstellung des Modus."
+        },
+        "fade": {
+          "name": "Einblenden",
+          "description": "Sekunden, bis die Lautstärke erreicht ist."
+        },
+        "when_playing": {
+          "name": "Wenn schon etwas läuft",
+          "description": "Ersetzen, hinten anhängen oder weiterlaufen lassen."
+        }
+      }
+    },
+    "pause_all": {
+      "name": "Alles pausieren",
+      "description": "Pausiert alles, was auf Beatera-Playern läuft, oder nur auf den gewählten.",
+      "fields": {
+        "entity_id": {
+          "name": "Player",
+          "description": "Nur diese; leer heißt alle."
+        }
+      }
+    }
+  },
+  "selector": {
+    "when_playing": {
+      "options": {
+        "replace": "Ersetzen",
+        "append": "Hinten anhängen",
+        "keep": "Weiterlaufen lassen"
+      }
+    }
   }
 }

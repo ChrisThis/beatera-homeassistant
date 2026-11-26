@@ -1,0 +1,79 @@
+blueprint:
+  name: Beatera – Modus beim Heimkommen
+  description: >-
+    Ist der Schalter an (zum Beispiel unterwegs eingeschaltet), startet beim Heimkommen einer Person
+    ein Beatera-Modus, auf Wunsch mit gedimmtem Licht; danach geht der Schalter wieder aus.
+    (When the switch is on, a Beatera mode starts as soon as a person gets home, optionally with
+    dimmed lights; then the switch goes off again.) Den Modus legst du in Beatera unter
+    Profil → Home Assistant an.
+  domain: automation
+  input:
+    armed:
+      name: Vorgemerkt-Schalter · Armed switch
+      description: Ein Helfer „Schalter" (input_boolean), z. B. „Romantik vorgemerkt".
+      selector:
+        entity:
+          domain: input_boolean
+    people:
+      name: Personen · People
+      selector:
+        entity:
+          domain: person
+          multiple: true
+    mode_name:
+      name: Beatera-Modus · Beatera mode
+      description: Name wie in Beatera, z. B. „Romantik".
+      selector:
+        text: {}
+    players:
+      name: Beatera-Player (leer = wie im Modus) · Beatera players (empty = as in the mode)
+      default: []
+      selector:
+        entity:
+          integration: beatera
+          domain: media_player
+          multiple: true
+    lights:
+      name: Licht (optional) · Lights (optional)
+      default: {}
+      selector:
+        target:
+          entity:
+            domain: light
+    brightness:
+      name: Helligkeit · Brightness
+      default: 25
+      selector:
+        number:
+          min: 1
+          max: 100
+          unit_of_measurement: "%"
+mode: single
+triggers:
+  - trigger: state
+    entity_id: !input people
+    to: home
+conditions:
+  - condition: state
+    entity_id: !input armed
+    state: "on"
+actions:
+  - variables:
+      lights: !input lights
+      players: !input players
+  - if:
+      - condition: template
+        value_template: "{{ lights not in ({}, None, '') }}"
+    then:
+      - action: light.turn_on
+        target: !input lights
+        data:
+          brightness_pct: !input brightness
+          transition: 5
+  - action: beatera.start_mode
+    data:
+      mode: !input mode_name
+      entity_id: "{{ players }}"
+  - action: input_boolean.turn_off
+    target:
+      entity_id: !input armed

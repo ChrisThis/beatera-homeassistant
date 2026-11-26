@@ -3,28 +3,113 @@
     "step": {
       "user": {
         "title": "Beatera",
-        "description": "Address of Beatera and a key from Profile → Apps and access. Rights: Read and Play; Administration for scans and instant events.",
-        "data": {"url": "Address", "token": "Key"}
+        "description": "Address of Beatera and the pairing code from Profile → Home Assistant (or a key from Profile → Apps and access).",
+        "data": {
+          "url": "Address",
+          "token": "Pairing code or key"
+        }
       },
-      "reauth_confirm": {"title": "New key", "description": "The key was revoked or has too few rights. Create a new one in the profile.", "data": {"token": "Key"}}
+      "reauth_confirm": {
+        "title": "New key",
+        "description": "Create a new pairing code in the profile (or a key) and enter it here.",
+        "data": {
+          "token": "Pairing code or key"
+        }
+      }
     },
     "error": {
       "invalid_url": "The address must start with http:// or https://.",
       "invalid_auth": "Beatera does not accept this key.",
       "cannot_connect": "Beatera cannot be reached at this address.",
-      "missing_rights": "The key needs at least the rights Read and Play."
+      "missing_rights": "The key needs at least the rights Read and Play.",
+      "invalid_code": "The pairing code is wrong, already used or older than 10 minutes. Create a new one in the profile."
     },
-    "abort": {"already_configured": "This account is already set up.", "reauth_successful": "The new key works."}
+    "abort": {
+      "already_configured": "This account is already set up.",
+      "reauth_successful": "The new key works."
+    }
   },
   "entity": {
     "sensor": {
-      "playing": {"name": "Playing now"},
-      "files": {"name": "Media files"},
-      "version": {"name": "Version"},
-      "streams": {"name": "Active streams"},
-      "work": {"name": "Background work"}
+      "playing": {
+        "name": "Playing now"
+      },
+      "files": {
+        "name": "Media files"
+      },
+      "version": {
+        "name": "Version"
+      },
+      "streams": {
+        "name": "Active streams"
+      },
+      "work": {
+        "name": "Background work"
+      }
     },
-    "binary_sensor": {"scanning": {"name": "Scan running"}},
-    "button": {"scan": {"name": "Start scan"}}
+    "binary_sensor": {
+      "scanning": {
+        "name": "Scan running"
+      }
+    },
+    "button": {
+      "scan": {
+        "name": "Start scan"
+      },
+      "mode": {
+        "name": "Mode {name}"
+      }
+    }
+  },
+  "services": {
+    "start_mode": {
+      "name": "Start mode",
+      "description": "Starts a mode set up in Beatera (Profile → Home Assistant). Without players it plays where the mode says, otherwise on the device used last.",
+      "fields": {
+        "mode": {
+          "name": "Mode",
+          "description": "Name of the mode, as in Beatera."
+        },
+        "entity_id": {
+          "name": "Players",
+          "description": "Beatera players to play on."
+        },
+        "volume": {
+          "name": "Volume",
+          "description": "Instead of the volume of the mode."
+        },
+        "shuffle": {
+          "name": "Shuffle",
+          "description": "Instead of the setting of the mode."
+        },
+        "fade": {
+          "name": "Fade in",
+          "description": "Seconds until the volume is reached."
+        },
+        "when_playing": {
+          "name": "When something plays",
+          "description": "Replace it, add at the end or let it play."
+        }
+      }
+    },
+    "pause_all": {
+      "name": "Pause everything",
+      "description": "Pauses everything that plays on Beatera players, or only on the chosen ones.",
+      "fields": {
+        "entity_id": {
+          "name": "Players",
+          "description": "Only these; empty means all."
+        }
+      }
+    }
+  },
+  "selector": {
+    "when_playing": {
+      "options": {
+        "replace": "Replace",
+        "append": "Add at the end",
+        "keep": "Let it play"
+      }
+    }
   }
 }

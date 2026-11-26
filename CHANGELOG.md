@@ -5,6 +5,28 @@ unter „Unveröffentlicht"; eine Version entsteht nur bei „release und push".
 
 ## Unveröffentlicht
 
+### Deutsch
+
+#### Neu
+
+- Einrichten mit dem Kopplungscode aus Beatera (Profil → Home Assistant) statt mit einem Schlüssel.
+- Modi: ein Knopf je Beatera-Modus und die Aktion „Modus starten" mit Player, Lautstärke, Zufall und
+  Einblenden; Vorlage „Modus beim Heimkommen".
+- Durchsagen und Sprachausgabe (`tts.speak`) auf Beatera-Playern.
+- Aktion „Alles pausieren".
+- Player anderer Haushaltsmitglieder, die das in Beatera erlauben, mit ihrem Namen.
+
+### English
+
+#### New
+
+- Set up with the pairing code from Beatera (Profile → Home Assistant) instead of a key.
+- Modes: a button for every Beatera mode and the action "Start mode" with players, volume, shuffle
+  and fade; blueprint "Mode on arrival".
+- Announcements and speech (`tts.speak`) on Beatera players.
+- Action "Pause everything".
+- Players of other people in the household who allow it in Beatera, with their name.
+
 ## 0.1.0 – 2026-11-26
 
 ### Deutsch

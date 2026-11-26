@@ -15,19 +15,30 @@ from homeassistant.const import CONF_URL, Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryAuthFailed, ConfigEntryNotReady
 from homeassistant.helpers import device_registry as dr
+from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
+from homeassistant.helpers.typing import ConfigType
 from homeassistant.helpers.network import NoURLAvailableError
 
 from .api import BeateraApi, BeateraAuthError, BeateraError
 from .const import CONF_HOOK_ID, CONF_HOOK_SECRET, CONF_TOKEN, CONF_WEBHOOK_ID, DOMAIN, EVENT
 from .coordinator import BeateraCoordinator
 from .entity import server_device
+from .services import async_setup_services
 
 _LOGGER = logging.getLogger(__name__)
 
 PLATFORMS = [Platform.BINARY_SENSOR, Platform.BUTTON, Platform.MEDIA_PLAYER, Platform.SENSOR]
 
 type BeateraConfigEntry = ConfigEntry[BeateraCoordinator]
+
+CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
+
+
+async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
+    """The actions exist once, for all Beatera accounts."""
+    async_setup_services(hass)
+    return True
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: BeateraConfigEntry) -> bool:

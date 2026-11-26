@@ -23,6 +23,7 @@ class BeateraData:
 
     status: dict[str, Any] = field(default_factory=dict)
     players: dict[str, dict[str, Any]] = field(default_factory=dict)
+    modes: dict[int, dict[str, Any]] = field(default_factory=dict)
 
 
 class BeateraCoordinator(DataUpdateCoordinator[BeateraData]):
@@ -47,4 +48,17 @@ class BeateraCoordinator(DataUpdateCoordinator[BeateraData]):
             raise ConfigEntryAuthFailed(str(err)) from err
         except BeateraError as err:
             raise UpdateFailed(str(err)) from err
-        return BeateraData(status=status, players={player["id"]: player for player in players})
+        try:
+            modes = await self.api.modes()
+        except BeateraError:
+            # Older servers know no modes.
+            modes = []
+        return BeateraData(status=status, players={player["id"]: player for player in players}, modes={mode["id"]: mode for mode in modes})
+
+    def mode(self, name_or_id: str | int) -> dict[str, Any] | None:
+        """A mode by its number or its name, ignoring case."""
+        modes = self.data.modes if self.data else {}
+        if str(name_or_id).isdigit() and int(name_or_id) in modes:
+            return modes[int(name_or_id)]
+        wanted = str(name_or_id).strip().casefold()
+        return next((mode for mode in modes.values() if mode["name"].casefold() == wanted), None)
