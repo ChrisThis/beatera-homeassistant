@@ -1,0 +1,30 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Beatera",
+        "description": "Adresse von Beatera und ein Schlüssel aus Profil → Apps und Zugänge. Rechte: Lesen und Abspielen; Verwaltung für Scans und sofortige Ereignisse.",
+        "data": {"url": "Adresse", "token": "Schlüssel"}
+      },
+      "reauth_confirm": {"title": "Neuer Schlüssel", "description": "Der Schlüssel wurde entzogen oder hat zu wenig Rechte. Erstelle im Profil einen neuen.", "data": {"token": "Schlüssel"}}
+    },
+    "error": {
+      "invalid_url": "Die Adresse muss mit http:// oder https:// beginnen.",
+      "invalid_auth": "Beatera nimmt diesen Schlüssel nicht an.",
+      "cannot_connect": "Beatera ist unter dieser Adresse nicht erreichbar.",
+      "missing_rights": "Der Schlüssel braucht mindestens die Rechte Lesen und Abspielen."
+    },
+    "abort": {"already_configured": "Dieses Konto ist schon eingerichtet.", "reauth_successful": "Der neue Schlüssel funktioniert."}
+  },
+  "entity": {
+    "sensor": {
+      "playing": {"name": "Spielt gerade"},
+      "files": {"name": "Mediendateien"},
+      "version": {"name": "Version"},
+      "streams": {"name": "Aktive Umwandlungen"},
+      "work": {"name": "Arbeit im Hintergrund"}
+    },
+    "binary_sensor": {"scanning": {"name": "Scan läuft"}},
+    "button": {"scan": {"name": "Scan starten"}}
+  }
+}

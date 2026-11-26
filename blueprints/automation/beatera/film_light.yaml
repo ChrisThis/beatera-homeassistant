@@ -1,0 +1,59 @@
+blueprint:
+  name: Beatera – Licht beim Film
+  description: >-
+    Startet in Beatera ein Film oder eine Folge, geht das Licht aus; bei Pause wird es gedimmt,
+    bei Fortsetzen wieder aus, am Ende wieder an. (Film or episode starts in Beatera: lights off;
+    dimmed when paused; off again when resumed; on at the end.) Braucht einen Schlüssel mit dem
+    Recht „Verwaltung", damit Beatera Ereignisse sofort meldet.
+  domain: automation
+  input:
+    lights:
+      name: Licht · Lights
+      selector:
+        target:
+          entity:
+            domain: light
+    pause_brightness:
+      name: Helligkeit bei Pause · Brightness when paused
+      default: 30
+      selector:
+        number:
+          min: 1
+          max: 100
+          unit_of_measurement: "%"
+    user:
+      name: Nur für diesen Beatera-Benutzer (leer = alle) · Only for this user (empty = everybody)
+      default: ""
+      selector:
+        text: {}
+mode: restart
+variables:
+  user: !input user
+trigger:
+  - platform: event
+    event_type: beatera_event
+condition:
+  - condition: template
+    value_template: "{{ trigger.event.data.type in ['movie', 'episode'] and (user == '' or trigger.event.data.user == user) }}"
+action:
+  - choose:
+      - conditions: "{{ trigger.event.data.event in ['playback.started', 'playback.resumed'] }}"
+        sequence:
+          - service: light.turn_off
+            target: !input lights
+            data:
+              transition: 3
+      - conditions: "{{ trigger.event.data.event == 'playback.paused' }}"
+        sequence:
+          - service: light.turn_on
+            target: !input lights
+            data:
+              brightness_pct: !input pause_brightness
+              transition: 2
+      - conditions: "{{ trigger.event.data.event == 'playback.ended' }}"
+        sequence:
+          - service: light.turn_on
+            target: !input lights
+            data:
+              brightness_pct: 100
+              transition: 5

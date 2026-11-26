@@ -1,0 +1,30 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Beatera",
+        "description": "Address of Beatera and a key from Profile → Apps and access. Rights: Read and Play; Administration for scans and instant events.",
+        "data": {"url": "Address", "token": "Key"}
+      },
+      "reauth_confirm": {"title": "New key", "description": "The key was revoked or has too few rights. Create a new one in the profile.", "data": {"token": "Key"}}
+    },
+    "error": {
+      "invalid_url": "The address must start with http:// or https://.",
+      "invalid_auth": "Beatera does not accept this key.",
+      "cannot_connect": "Beatera cannot be reached at this address.",
+      "missing_rights": "The key needs at least the rights Read and Play."
+    },
+    "abort": {"already_configured": "This account is already set up.", "reauth_successful": "The new key works."}
+  },
+  "entity": {
+    "sensor": {
+      "playing": {"name": "Playing now"},
+      "files": {"name": "Media files"},
+      "version": {"name": "Version"},
+      "streams": {"name": "Active streams"},
+      "work": {"name": "Background work"}
+    },
+    "binary_sensor": {"scanning": {"name": "Scan running"}},
+    "button": {"scan": {"name": "Start scan"}}
+  }
+}
