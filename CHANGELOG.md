@@ -5,6 +5,8 @@ unter „Unveröffentlicht"; eine Version entsteht nur bei „release und push".
 
 ## Unveröffentlicht
 
+## 0.2.0 – 2026-11-26
+
 ### Deutsch
 
 #### Neu
