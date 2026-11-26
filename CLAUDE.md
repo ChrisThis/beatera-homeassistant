@@ -50,3 +50,13 @@ Nichts bauen, außer der Auftraggeber schreibt ausdrücklich das Wort **"Bauen"*
 - Entwickelt und getestet wird nur gegen die Vorschau-Instanz und den
   Testordner `00_Beatera_Medien_Test`, nie gegen Produktion oder die echten
   Bibliotheken.
+
+## 6. Hilfe immer mitpflegen
+
+- Die Hilfe in Beatera (`beatera/resources/help/de` und `/en`, je Kapitel eine Markdown-Datei)
+  beschreibt Bedienung und Verhalten. Sie wird **bei jeder Änderung**, die Bedienung, Verhalten,
+  Einrichtung oder Grenzen betrifft, im selben Commit angepasst, auf Deutsch und Englisch.
+- Das gilt auch für die Repos `beatera-app` und `beatera-homeassistant`: Ändert sich dort etwas
+  für die Benutzer, wird das passende Kapitel im Hauptrepo nachgezogen (z. B. „Home Assistant").
+- Vor jedem „release und push" prüfen, dass die Hilfe zum Stand passt; im Bericht nennen, welche
+  Kapitel geändert wurden.
