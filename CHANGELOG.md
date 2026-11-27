@@ -5,6 +5,18 @@ unter „Unveröffentlicht"; eine Version entsteht nur bei „release und push".
 
 ## Unveröffentlicht
 
+### Deutsch
+
+#### Neu
+
+- Beatera-Logo in Home Assistant und HACS (ab Home Assistant 2026.3).
+
+### English
+
+#### New
+
+- Beatera logo in Home Assistant and HACS (from Home Assistant 2026.3).
+
 ## 0.2.0 – 2026-11-26
 
 ### Deutsch

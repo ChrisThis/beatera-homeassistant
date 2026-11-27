@@ -33,6 +33,9 @@ und Video, mit Home Assistant.
 3. *Einstellungen → Geräte & Dienste → Integration hinzufügen → Beatera*: Adresse (z. B.
    `https://beatera.example.org`) und den Kopplungscode eingeben.
 
+Das Logo bringt die Integration selbst mit (Ordner `brand/`); Home Assistant zeigt es ab Version
+2026.3, ältere Versionen zeigen einen Platzhalter.
+
 Statt des Codes geht auch ein Schlüssel aus *Profil → Apps und Zugänge* (Rechte **Lesen** und
 **Abspielen**, für sofortige Ereignisse und Scans dazu **Verwaltung**). Kopplungscode und Modi
 brauchen Beatera 0.20 oder neuer.
