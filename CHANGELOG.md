@@ -5,6 +5,20 @@ unter „Unveröffentlicht"; eine Version entsteht nur bei „release und push".
 
 ## Unveröffentlicht
 
+### Deutsch
+
+#### Geändert
+
+- HACS zeigt Updates mit Versionsnummer (z. B. 0.2.1) statt eines Codes und bietet nur
+  freigegebene Versionen an; die Änderungen stehen im Update-Dialog.
+
+### English
+
+#### Changed
+
+- HACS shows updates with a version number (e.g. 0.2.1) instead of a code and offers only released
+  versions; the changes are shown in the update dialog.
+
 ## 0.2.1 – 2026-11-27
 
 ### Deutsch
